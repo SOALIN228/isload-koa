@@ -4,6 +4,8 @@ const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
+const { ErrorModel } = require('./model/ResModel')
+const { serverFileInfo } = require('./model/ErrorInfo')
 
 const index = require('./routes/api/v1')
 
@@ -20,6 +22,14 @@ app.use(require('koa-static')(__dirname + '/public'))
 
 // routes
 app.use(index.routes(), index.allowedMethods())
+
+// 全局错误处理
+onerror(app, {
+  json () {
+    this.status = 500
+    this.body = new ErrorModel(serverFileInfo)
+  }
+})
 
 // error-handling
 app.on('error', (err, ctx) => {
